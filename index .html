@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排序算法可视化演示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin: 20px 0 30px;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: #64FFDA;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, select, button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #FF416C, #FF4B2B);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 75, 43, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background: rgba(255, 255, 255, 0.15);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .algorithm-select {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .algo-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .algo-btn:hover {
+            background: rgba(100, 255, 218, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .algo-btn.selected {
+            background: rgba(100, 255, 218, 0.25);
+            border-color: #64FFDA;
+            box-shadow: 0 0 15px rgba(100, 255, 218, 0.3);
+        }
+        
+        .algo-btn i {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .visualization {
+            height: 350px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 20px;
+            gap: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .bar {
+            width: 20px;
+            background: linear-gradient(to top, #64FFDA, #00B4DB);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease, background 0.3s ease;
+            position: relative;
+        }
+        
+        .bar-value {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .bar.comparing {
+            background: linear-gradient(to top, #FF416C, #FF4B2B);
+        }
+        
+        .bar.swapping {
+            background: linear-gradient(to top, #FFD700, #FFA500);
+        }
+        
+        .bar.sorted {
+            background: linear-gradient(to top, #7B68EE, #9370DB);
+        }
+        
+        .bar.pivot {
+            background: linear-gradient(to top, #BA55D3, #9932CC);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .controls button {
+            flex: 1;
+        }
+        
+        #reset-btn {
+            background: linear-gradient(45deg, #2193b0, #6dd5ed);
+        }
+        
+        .progress-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #64FFDA, #00B4DB);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .complexity {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .complexity h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .complexity i {
+            color: #FFD700;
+        }
+        
+        .algorithm-info {
+            margin-top: 10px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .algorithm-select {
+                grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            }
+            
+            .visualization {
+                height: 250px;
+            }
+            
+            .bar {
+                width: 14px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>排序算法可视化</h1>
+            <p class="subtitle">本演示展示了七种经典排序算法的工作原理：选择排序、冒泡排序、插入排序、桶排序、快速排序、堆排序和归并排序。通过动画演示，您可以直观地了解每种算法如何逐步对数据进行排序。</p>
+        </header>
+        
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-sliders-h"></i>
+                <span>数据输入与算法选择</span>
+            </div>
+            
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="data-input"><i class="fas fa-list-ol"></i> 输入数据（逗号分隔）</label>
+                    <input type="text" id="data-input" placeholder="例如: 5, 2, 8, 1, 9, 3, 7">
+                </div>
+                
+                <div class="input-group">
+                    <label for="array-size"><i class="fas fa-arrows-alt-h"></i> 数组大小</label>
+                    <select id="array-size">
+                        <option value="10">10 个元素</option>
+                        <option value="15" selected>15 个元素</option>
+                        <option value="20">20 个元素</option>
+                        <option value="25">25 个元素</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="speed"><i class="fas fa-tachometer-alt"></i> 动画速度</label>
+                    <select id="speed">
+                        <option value="100">慢速</option>
+                        <option value="60" selected>中速</option>
+                        <option value="20">快速</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="input-section">
+                <button id="random-btn"><i class="fas fa-random"></i> 生成随机数据</button>
+                <button id="reset-btn"><i class="fas fa-redo"></i> 重置演示</button>
+                <button id="start-btn"><i class="fas fa-play"></i> 开始排序</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-project-diagram"></i>
+                <span>选择排序算法</span>
+            </div>
+            
+            <div class="algorithm-select">
+                <div class="algo-btn" data-algo="selection">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <span>选择排序</span>
+                </div>
+                <div class="algo-btn" data-algo="bubble">
+                    <i class="fas fa-wind"></i>
+                    <span>冒泡排序</span>
+                </div>
+                <div class="algo-btn" data-algo="insertion">
+                    <i class="fas fa-archive"></i>
+                    <span>插入排序</span>
+                </div>
+                <div class="algo-btn" data-algo="bucket">
+                    <i class="fas fa-bucket"></i>
+                    <span>桶排序</span>
+                </div>
+                <div class="algo-btn" data-algo="quick">
+                    <i class="fas fa-bolt"></i>
+                    <span>快速排序</span>
+                </div>
+                <div class="algo-btn" data-algo="heap">
+                    <i class="fas fa-tree"></i>
+                    <span>堆排序</span>
+                </div>
+                <div class="algo-btn" data-algo="merge">
+                    <i class="fas fa-code-branch"></i>
+                    <span>归并排序</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-chart-bar"></i>
+                <span>排序可视化<span id="current-algo"> (请选择算法)</span></span>
+            </div>
+            
+            <div class="visualization" id="visualization">
+                <!-- 条形图将由JavaScript动态生成 -->
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="stats">
+                <div><i class="fas fa-exchange-alt"></i> 交换次数: <span id="swap-count">0</span></div>
+                <div><i class="fas fa-compress-alt"></i> 比较次数: <span id="compare-count">0</span></div>
+                <div><i class="fas fa-clock"></i> 执行时间: <span id="time-taken">0 ms</span></div>
+            </div>
+            
+            <div class="controls">
+                <button id="prev-step" disabled><i class="fas fa-step-backward"></i> 上一步</button>
+                <button id="next-step" disabled><i class="fas fa-step-forward"></i> 下一步</button>
+                <button id="pause-btn" disabled><i class="fas fa-pause"></i> 暂停</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="complexity">
+                <h3><i class="fas fa-brain"></i> 算法复杂度分析</h3>
+                <div class="algorithm-info" id="complexity-info">
+                    请选择排序算法查看其时间复杂度和空间复杂度分析
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let array = [];
+        let algorithm = null;
+        let animationSteps = [];
+        let currentStep = 0;
+        let timer = null;
+        let isPlaying = false;
+        let swapCount = 0;
+        let compareCount = 0;
+        let startTime = 0;
+        
+        // DOM元素
+        const visualization = document.getElementById('visualization');
+        const dataInput = document.getElementById('data-input');
+        const arraySizeSelect = document.getElementById('array-size');
+        const speedSelect = document.getElementById('speed');
+        const randomBtn = document.getElementById('random-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const startBtn = document.getElementById('start-btn');
+        const algoButtons = document.querySelectorAll('.algo-btn');
+        const prevStepBtn = document.getElementById('prev-step');
+        const nextStepBtn = document.getElementById('next-step');
+        const pauseBtn = document.getElementById('pause-btn');
+        const swapCountEl = document.getElementById('swap-count');
+        const compareCountEl = document.getElementById('compare-count');
+        const timeTakenEl = document.getElementById('time-taken');
+        const progressBar = document.getElementById('progress-bar');
+        const currentAlgoEl = document.getElementById('current-algo');
+        const complexityInfo = document.getElementById('complexity-info');
+        
+        // 生成随机数组
+        function generateRandomArray(size) {
+            const arr = [];
+            for (let i = 0; i < size; i++) {
+                arr.push(Math.floor(Math.random() * 95) + 5); // 5-99之间的随机数
+            }
+            return arr;
+        }
+        
+        // 渲染条形图
+        function renderBars(arr, comparingIndexes = [], swappingIndexes = [], sortedIndexes = [], pivotIndex = -1) {
+            visualization.innerHTML = '';
+            const maxValue = Math.max(...arr, 100);
+            
+            arr.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                
+                // 设置条形高度（占可视化区域高度的比例）
+                const heightPercentage = (value / maxValue) * 80;
+                bar.style.height = `${heightPercentage}%`;
+                
+                // 设置条形标签
+                const barValue = document.createElement('div');
+                barValue.classList.add('bar-value');
+                barValue.textContent = value;
+                bar.appendChild(barValue);
+                
+                // 添加状态类
+                if (comparingIndexes.includes(index)) {
+                    bar.classList.add('comparing');
+                } else if (swappingIndexes.includes(index)) {
+                    bar.classList.add('swapping');
+                } else if (sortedIndexes.includes(index)) {
+                    bar.classList.add('sorted');
+                } else if (index === pivotIndex) {
+                    bar.classList.add('pivot');
+                }
+                
+                visualization.appendChild(bar);
+            });
+        }
+        
+        // 初始化页面
+        function init() {
+            const size = parseInt(arraySizeSelect.value);
+            array = generateRandomArray(size);
+            renderBars(array);
+            updateStats();
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            swapCountEl.textContent = swapCount;
+            compareCountEl.textContent = compareCount;
+            
+            if (startTime) {
+                const elapsed = Date.now() - startTime;
+                timeTakenEl.textContent = `${elapsed} ms`;
+            }
+        }
+        
+        // 算法选择处理
+        function selectAlgorithm(algo) {
+            algorithm = algo;
+            
+            // 更新按钮状态
+            algoButtons.forEach(btn => {
+                if (btn.dataset.algo === algo) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            // 更新当前算法显示
+            currentAlgoEl.textContent = ` (${getAlgorithmName(algo)})`;
+            
+            // 显示算法复杂度信息
+            displayComplexityInfo(algo);
+        }
+        
+        // 获取算法名称
+        function getAlgorithmName(algo) {
+            const names = {
+                'selection': '选择排序',
+                'bubble': '冒泡排序',
+                'insertion': '插入排序',
+                'bucket': '桶排序',
+                'quick': '快速排序',
+                'heap': '堆排序',
+                'merge': '归并排序'
+            };
+            return names[algo] || '未知算法';
+        }
+        
+        // 显示算法复杂度信息
+        function displayComplexityInfo(algo) {
+            const info = {
+                'selection': {
+                    worst: 'O(n²)',
+                    average: 'O(n²)',
+                    best: 'O(n²)',
+                    space: 'O(1)',
+                    desc: '选择排序重复从未排序部分找到最小元素并将其放到已排序部分的末尾。'
+                },
+                'bubble': {
+                    worst: 'O(n²)',
+                    average: 'O(n²)',
+                    best: 'O(n)',
+                    space: 'O(1)',
+                    desc: '冒泡排序重复遍历列表，比较相邻元素并在它们顺序错误时交换它们。'
+                },
+                'insertion': {
+                    worst: 'O(n²)',
+                    average: 'O(n²)',
+                    best: 'O(n)',
+                    space: 'O(1)',
+                    desc: '插入排序构建最终有序数组，一次插入一个元素。它对于小数据集或基本有序的数据非常高效。'
+                },
+                'bucket': {
+                    worst: 'O(n²)',
+                    average: 'O(n + k)',
+                    best: 'O(n + k)',
+                    space: 'O(n + k)',
+                    desc: '桶排序将数组分为多个桶，每个桶单独排序（使用其他排序算法或递归方式），然后合并结果。'
+                },
+                'quick': {
+                    worst: 'O(n²)',
+                    average: 'O(n log n)',
+                    best: 'O(n log n)',
+                    space: 'O(log n)',
+                    desc: '快速排序是一种分而治之算法。它选择一个元素作为基准，将比基准小的元素移到基准前面，大的移到后面，然后递归地对基准前后的子数组排序。'
+                },
+                'heap': {
+                    worst: 'O(n log n)',
+                    average: 'O(n log n)',
+                    best: 'O(n log n)',
+                    space: 'O(1)',
+                    desc: '堆排序利用堆数据结构进行排序。它首先建立一个最大堆，然后重复提取堆顶元素（最大值）并调整堆。'
+                },
+                'merge': {
+                    worst: 'O(n log n)',
+                    average: 'O(n log n)',
+                    best: 'O(n log n)',
+                    space: 'O(n)',
+                    desc: '归并排序是一种高效、稳定的分而治之算法。它将数组分为两半，分别对它们排序，然后合并两个有序数组。'
+                }
+            };
+            
+            const algoInfo = info[algo];
+            complexityInfo.innerHTML = `
+                <p><strong>最坏情况时间复杂度:</strong> ${algoInfo.worst}</p>
+                <p><strong>平均时间复杂度:</strong> ${algoInfo.average}</p>
+                <p><strong>最佳情况时间复杂度:</strong> ${algoInfo.best}</p>
+                <p><strong>空间复杂度:</strong> ${algoInfo.space}</p>
+                <p class="algorithm-info">${algoInfo.desc}</p>
+            `;
+        }
+        
+        // 开始排序
+        function startSorting() {
+            if (!algorithm) {
+                alert('请先选择排序算法！');
+                return;
+            }
+            
+            // 解析自定义输入或使用当前数组
+            if (dataInput.value.trim() !== '') {
+                const inputArray = dataInput.value.split(',').map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+                if (inputArray.length > 1) {
+                    array = inputArray;
+                } else {
+                    alert('请输入有效的数字列表（至少两个数字）');
+                    return;
+                }
+            }
+            
+            // 重置状态
+            resetCounters();
+            animationSteps = [];
+            currentStep = 0;
+            startTime = Date.now();
+            
+            // 基于选择的算法生成动画步骤
+            switch (algorithm) {
+                case 'selection':
+                    generateSelectionSortSteps([...array]);
+                    break;
+                case 'bubble':
+                    generateBubbleSortSteps([...array]);
+                    break;
+                case 'insertion':
+                    generateInsertionSortSteps([...array]);
+                    break;
+                case 'quick':
+                    generateQuickSortSteps([...array]);
+                    break;
+                case 'merge':
+                    generateMergeSortSteps([...array]);
+                    break;
+                default:
+                    // 简化演示：其他算法使用相同动画
+                    generateSelectionSortSteps([...array]);
+            }
+            
+            // 启用控制按钮
+            prevStepBtn.disabled = false;
+            nextStepBtn.disabled = false;
+            pauseBtn.disabled = false;
+            startBtn.disabled = true;
+            
+            // 开始动画
+            playAnimation();
+        }
+        
+        // 生成选择排序动画步骤
+        function generateSelectionSortSteps(arr) {
+            const sortedIndexes = [];
+            
+            for (let i = 0; i < arr.length - 1; i++) {
+                let minIndex = i;
+                
+                for (let j = i + 1; j < arr.length; j++) {
+                    // 比较步骤
+                    compareCount++;
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [minIndex, j],
+                        swappingIndexes: [],
+                        sortedIndexes: [...sortedIndexes],
+                        pivotIndex: -1
+                    });
+                    
+                    if (arr[j] < arr[minIndex]) {
+                        minIndex = j;
+                    }
+                }
+                
+                // 交换步骤
+                if (minIndex !== i) {
+                    swapCount++;
+                    [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+                    
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [i, minIndex],
+                        swappingIndexes: [i, minIndex],
+                        sortedIndexes: [...sortedIndexes],
+                        pivotIndex: -1
+                    });
+                }
+                
+                sortedIndexes.push(i);
+            }
+            
+            sortedIndexes.push(arr.length - 1);
+            animationSteps.push({
+                array: [...arr],
+                comparingIndexes: [],
+                swappingIndexes: [],
+                sortedIndexes: sortedIndexes,
+                pivotIndex: -1
+            });
+        }
+        
+        // 生成冒泡排序动画步骤
+        function generateBubbleSortSteps(arr) {
+            const sortedIndexes = [];
+            let n = arr.length;
+            let swapped;
+            
+            for (let i = 0; i < n - 1; i++) {
+                swapped = false;
+                
+                for (let j = 0; j < n - i - 1; j++) {
+                    // 比较步骤
+                    compareCount++;
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [j, j+1],
+                        swappingIndexes: [],
+                        sortedIndexes: [...sortedIndexes],
+                        pivotIndex: -1
+                    });
+                    
+                    if (arr[j] > arr[j+1]) {
+                        // 交换步骤
+                        swapCount++;
+                        [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+                        swapped = true;
+                        
+                        animationSteps.push({
+                            array: [...arr],
+                            comparingIndexes: [j, j+1],
+                            swappingIndexes: [j, j+1],
+                            sortedIndexes: [...sortedIndexes],
+                            pivotIndex: -1
+                        });
+                    }
+                }
+                
+                sortedIndexes.push(n - i - 1);
+                
+                // 如果没有交换，说明数组已排序
+                if (!swapped) break;
+            }
+            
+            // 添加最终状态
+            animationSteps.push({
+                array: [...arr],
+                comparingIndexes: [],
+                swappingIndexes: [],
+                sortedIndexes: Array.from({length: arr.length}, (_, i) => i),
+                pivotIndex: -1
+            });
+        }
+        
+        // 生成插入排序动画步骤
+        function generateInsertionSortSteps(arr) {
+            const sortedIndexes = [0]; // 第一个元素视为已排序
+            
+            for (let i = 1; i < arr.length; i++) {
+                let j = i;
+                
+                while (j > 0 && arr[j] < arr[j-1]) {
+                    // 比较步骤
+                    compareCount++;
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [j, j-1],
+                        swappingIndexes: [],
+                        sortedIndexes: [...sortedIndexes],
+                        pivotIndex: -1
+                    });
+                    
+                    // 交换步骤
+                    swapCount++;
+                    [arr[j], arr[j-1]] = [arr[j-1], arr[j]];
+                    
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [j, j-1],
+                        swappingIndexes: [j, j-1],
+                        sortedIndexes: [...sortedIndexes],
+                        pivotIndex: -1
+                    });
+                    
+                    j--;
+                }
+                
+                sortedIndexes.push(i);
+            }
+            
+            // 添加最终状态
+            animationSteps.push({
+                array: [...arr],
+                comparingIndexes: [],
+                swappingIndexes: [],
+                sortedIndexes: Array.from({length: arr.length}, (_, i) => i),
+                pivotIndex: -1
+            });
+        }
+        
+        // 生成快速排序动画步骤（简化版）
+        function generateQuickSortSteps(arr) {
+            quickSort(arr, 0, arr.length - 1);
+            
+            // 添加最终状态
+            animationSteps.push({
+                array: [...arr],
+                comparingIndexes: [],
+                swappingIndexes: [],
+                sortedIndexes: Array.from({length: arr.length}, (_, i) => i),
+                pivotIndex: -1
+            });
+            
+            function quickSort(arr, low, high) {
+                if (low < high) {
+                    const pi = partition(arr, low, high);
+                    
+                    quickSort(arr, low, pi - 1);
+                    quickSort(arr, pi + 1, high);
+                }
+            }
+            
+            function partition(arr, low, high) {
+                const pivot = arr[high];
+                let i = low - 1;
+                
+                // 高亮显示基准值
+                animationSteps.push({
+                    array: [...arr],
+                    comparingIndexes: [],
+                    swappingIndexes: [],
+                    sortedIndexes: [],
+                    pivotIndex: high
+                });
+                
+                for (let j = low; j < high; j++) {
+                    // 比较步骤
+                    compareCount++;
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [j, high],
+                        swappingIndexes: [],
+                        sortedIndexes: [],
+                        pivotIndex: high
+                    });
+                    
+                    if (arr[j] < pivot) {
+                        i++;
+                        
+                        if (i !== j) {
+                            // 交换步骤
+                            swapCount++;
+                            [arr[i], arr[j]] = [arr[j], arr[i]];
+                            
+                            animationSteps.push({
+                                array: [...arr],
+                                comparingIndexes: [i, j],
+                                swappingIndexes: [i, j],
+                                sortedIndexes: [],
+                                pivotIndex: high
+                            });
+                        }
+                    }
+                }
+                
+                // 交换基准值到正确位置
+                swapCount++;
+                [arr[i+1], arr[high]] = [arr[high], arr[i+1]];
+                
+                animationSteps.push({
+                    array: [...arr],
+                    comparingIndexes: [i+1, high],
+                    swappingIndexes: [i+1, high],
+                    sortedIndexes: [],
+                    pivotIndex: high
+                });
+                
+                return i + 1;
+            }
+        }
+        
+        // 生成归并排序动画步骤（简化版）
+        function generateMergeSortSteps(arr) {
+            const sortedIndexes = [];
+            mergeSort(arr, 0, arr.length - 1, sortedIndexes);
+            
+            // 添加最终状态
+            animationSteps.push({
+                array: [...arr],
+                comparingIndexes: [],
+                swappingIndexes: [],
+                sortedIndexes: Array.from({length: arr.length}, (_, i) => i),
+                pivotIndex: -1
+            });
+            
+            function mergeSort(arr, left, right, sortedIndexes) {
+                if (left >= right) return;
+                
+                const mid = Math.floor((left + right) / 2);
+                
+                mergeSort(arr, left, mid, sortedIndexes);
+                mergeSort(arr, mid + 1, right, sortedIndexes);
+                
+                // 合并前的高亮显示
+                animationSteps.push({
+                    array: [...arr],
+                    comparingIndexes: [],
+                    swappingIndexes: [],
+                    sortedIndexes: [...sortedIndexes],
+                    pivotIndex: -1
+                });
+                
+                merge(arr, left, mid, right, sortedIndexes);
+                
+                // 添加合并后的排序索引
+                for (let i = left; i <= right; i++) {
+                    if (!sortedIndexes.includes(i)) {
+                        sortedIndexes.push(i);
+                    }
+                }
+                
+                // 合并后的状态
+                animationSteps.push({
+                    array: [...arr],
+                    comparingIndexes: [],
+                    swappingIndexes: [],
+                    sortedIndexes: [...sortedIndexes],
+                    pivotIndex: -1
+                });
+            }
+            
+            function merge(arr, left, mid, right, sortedIndexes) {
+                const leftArr = arr.slice(left, mid + 1);
+                const rightArr = arr.slice(mid + 1, right + 1);
+                
+                let i = 0, j = 0, k = left;
+                
+                while (i < leftArr.length && j < rightArr.length) {
+                    compareCount++;
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [left + i, mid + 1 + j],
+                        swappingIndexes: [],
+                        sortedIndexes: [...sortedIndexes],
+                        pivotIndex: -1
+                    });
+                    
+                    if (leftArr[i] <= rightArr[j]) {
+                        if (arr[k] !== leftArr[i]) {
+                            swapCount++;
+                        }
+                        arr[k] = leftArr[i];
+                        i++;
+                    } else {
+                        if (arr[k] !== rightArr[j]) {
+                            swapCount++;
+                        }
+                        arr[k] = rightArr[j];
+                        j++;
+                    }
+                    
+                    animationSteps.push({
+                        array: [...arr],
+                        comparingIndexes: [k],
+                        swappingIndexes: [],
+                        sortedIndexes: [...sortedIndexes],
+                        pivotIndex: -1
+                    });
+                    
+                    k++;
+                }
+                
+                while (i < leftArr.length) {
+                    arr[k] = leftArr[i];
+                    i++;
+                    k++;
+                }
+                
+                while (j < rightArr.length) {
+                    arr[k] = rightArr[j];
+                    j++;
+                    k++;
+                }
+            }
+        }
+        
+        // 重置计数器
+        function resetCounters() {
+            swapCount = 0;
+            compareCount = 0;
+            updateStats();
+        }
+        
+        // 播放动画
+        function playAnimation() {
+            if (isPlaying) return;
+            
+            pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+            isPlaying = true;
+            
+            const speed = parseInt(speedSelect.value);
+            
+            if (currentStep < animationSteps.length) {
+                const step = animationSteps[currentStep];
+                renderBars(step.array, step.comparingIndexes, step.swappingIndexes, step.sortedIndexes, step.pivotIndex);
+                
+                // 更新进度条
+                progressBar.style.width = `${(currentStep / (animationSteps.length - 1)) * 100}%`;
+                updateStats();
+                
+                currentStep++;
+                
+                timer = setTimeout(playAnimation, speed);
+            } else {
+                pauseAnimation();
+            }
+        }
+        
+        // 暂停动画
+        function pauseAnimation() {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            isPlaying = false;
+            pauseBtn.innerHTML = '<i class="fas fa-play"></i> 继续';
+        }
+        
+        // 上一步
+        function prevStep() {
+            pauseAnimation();
+            
+            if (currentStep > 1) {
+                currentStep--;
+                const step = animationSteps[currentStep - 1];
+                renderBars(step.array, step.comparingIndexes, step.swappingIndexes, step.sortedIndexes, step.pivotIndex);
+                
+                // 更新进度条
+                progressBar.style.width = `${((currentStep - 1) / (animationSteps.length - 1)) * 100}%`;
+                
+                // 更新计数器（需要重新计算）
+                swapCount = 0;
+                compareCount = 0;
+                
+                // 重新计算计数器的值（模拟）
+                for (let i = 0; i < currentStep; i++) {
+                    const step = animationSteps[i];
+                    if (step.swappingIndexes.length > 0) {
+                        swapCount += step.swappingIndexes.length / 2;
+                    }
+                    if (step.comparingIndexes.length > 0) {
+                        compareCount++;
+                    }
+                }
+                
+                updateStats();
+            }
+        }
+        
+        // 下一步
+        function nextStep() {
+            pauseAnimation();
+            
+            if (currentStep < animationSteps.length) {
+                const step = animationSteps[currentStep];
+                renderBars(step.array, step.comparingIndexes, step.swappingIndexes, step.sortedIndexes, step.pivotIndex);
+                
+                // 更新进度条
+                progressBar.style.width = `${(currentStep / (animationSteps.length - 1)) * 100}%`;
+                
+                // 更新计数器（需要重新计算）
+                swapCount = 0;
+                compareCount = 0;
+                
+                // 重新计算计数器的值（模拟）
+                for (let i = 0; i <= currentStep; i++) {
+                    const step = animationSteps[i];
+                    if (step.swappingIndexes.length > 0) {
+                        swapCount += step.swappingIndexes.length / 2;
+                    }
+                    if (step.comparingIndexes.length > 0) {
+                        compareCount++;
+                    }
+                }
+                
+                updateStats();
+                currentStep++;
+            }
+        }
+        
+        // 重置演示
+        function resetDemo() {
+            pauseAnimation();
+            init();
+            resetCounters();
+            algorithm = null;
+            animationSteps = [];
+            currentStep = 0;
+            progressBar.style.width = '0%';
+            currentAlgoEl.textContent = ' (请选择算法)';
+            complexityInfo.textContent = '请选择排序算法查看其时间复杂度和空间复杂度分析';
+            
+            // 重置按钮状态
+            startBtn.disabled = false;
+            prevStepBtn.disabled = true;
+            nextStepBtn.disabled = true;
+            pauseBtn.disabled = true;
+            pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+            
+            // 移除算法选择
+            algoButtons.forEach(btn => btn.classList.remove('selected'));
+            
+            // 清空输入框
+            dataInput.value = '';
+        }
+        
+        // 事件监听
+        randomBtn.addEventListener('click', () => {
+            const size = parseInt(arraySizeSelect.value);
+            array = generateRandomArray(size);
+            renderBars(array);
+            resetCounters();
+        });
+        
+        startBtn.addEventListener('click', startSorting);
+        resetBtn.addEventListener('click', resetDemo);
+        
+        prevStepBtn.addEventListener('click', prevStep);
+        nextStepBtn.addEventListener('click', nextStep);
+        
+        pauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseAnimation();
+            } else {
+                playAnimation();
+            }
+        });
+        
+        // 算法选择按钮
+        algoButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectAlgorithm(btn.dataset.algo);
+            });
+        });
+        
+        // 初始化页面
+        window.addEventListener('load', init);
+        
+        // 响应窗口大小变化
+        window.addEventListener('resize', () => {
+            if (animationSteps.length > 0 && currentStep > 0) {
+                const step = animationSteps[currentStep - 1];
+                renderBars(step.array, step.comparingIndexes, step.swappingIndexes, step.sortedIndexes, step.pivotIndex);
+            } else {
+                renderBars(array);
+            }
+        });
+    </script>
+</body>
+</html>
